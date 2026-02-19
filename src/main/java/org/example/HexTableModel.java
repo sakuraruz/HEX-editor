@@ -4,6 +4,13 @@ import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 
 public class HexTableModel extends AbstractTableModel {
+
+    private static class CopiedData {
+        byte[] bytes;
+        int originalColumns;
+    }
+
+    private static CopiedData clipboard = null;
     private ByteFileModel fileModel;
     private int columns = 16;
 
@@ -60,4 +67,55 @@ public class HexTableModel extends AbstractTableModel {
         }
 
     }
+
+    public void copySelected(int startRow, int startCol, int endRow, int endCol) {
+        int width = endCol - startCol + 1;
+        int height = endRow - startRow + 1;
+
+        byte[] bytes = new byte[width * height];
+        int index = 0;
+
+        for (int row = startRow; row <= endRow; row++) {
+            for (int col = startCol; col <= endCol; col++) {
+                long position = (long) row * columns + col;
+                try {
+                    bytes[index++] = fileModel.getByte(position);
+                } catch (IOException e) {
+                    bytes[index++] = 0;
+                }
+            }
+        }
+
+        clipboard = new CopiedData();
+        clipboard.bytes = bytes;
+        clipboard.originalColumns = width;
+
+        System.out.println("Скопировано " + bytes.length + " байт");
+    }
+
+    public void pasteSelected(int startRow, int startCol) {
+        if (clipboard == null || clipboard.bytes.length == 0) {
+            System.out.println("Буфер пуст.");
+            return;
+        }
+
+        long startPos = (long) startRow * columns + startCol;
+
+        int countRows = clipboard.bytes.length / clipboard.originalColumns;
+        int pos = 0;
+        try {
+            for (int i = 0; i < countRows; i++) {
+                for (int j = 0; j < clipboard.originalColumns; j++) {
+                    fileModel.setByte(startPos + j + i * columns, clipboard.bytes[pos++]);
+                }
+            }
+
+            fireTableDataChanged();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

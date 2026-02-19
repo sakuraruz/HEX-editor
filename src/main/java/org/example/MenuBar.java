@@ -27,10 +27,17 @@ public class MenuBar extends JMenuBar {
 
         JMenuItem deleteZeroItem = new JMenuItem("Удалить");
         deleteZeroItem.addActionListener(e -> deleteSelected());
+        JMenuItem copyItem = new JMenuItem("Копировать");
+        copyItem.addActionListener(e -> copySelected());
+        JMenuItem pasteItem = new JMenuItem("Вставить");
+        pasteItem.addActionListener(e -> pasteSelected());
 
         editMenu.add(deleteZeroItem);
-
+        editMenu.add(copyItem);
+        editMenu.add(pasteItem);
         add(editMenu);
+
+
 
         JMenuItem exitItem = new JMenuItem("Выход");
 
@@ -54,10 +61,10 @@ public class MenuBar extends JMenuBar {
         }
     }
 
-    private void deleteSelected() {
+    private void operateOnSelected(SelectedBlockOperation operation) {
         int[] range = hexTable.getSelectedRange();
         if (range == null) {
-            JOptionPane.showMessageDialog(mainWindow, "Сначала выделите байты для удаления");
+            JOptionPane.showMessageDialog(mainWindow, "Ñíà÷àëà âûäåëèòå áàéòû");
             return;
         }
 
@@ -66,7 +73,27 @@ public class MenuBar extends JMenuBar {
         int endRow = range[2];
         int endCol = range[3];
 
-        HexTableModel model = (HexTableModel) hexTable.getModel();
-        model.deleteSelected(startRow, startCol, endRow, endCol);
+        operation.execute(startRow, startCol, endRow, endCol);
+    }
+
+    private void deleteSelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.deleteSelected(startRow, startCol, endRow, endCol);
+        });
+    }
+
+    private void copySelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.copySelected(startRow, startCol, endRow, endCol);
+        });
+    }
+
+    private void pasteSelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.pasteSelected(startRow, startCol);
+        });
     }
 }
