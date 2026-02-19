@@ -65,32 +65,29 @@ public class HexCellEditor extends AbstractCellEditor implements TableCellEditor
     public boolean stopCellEditing() {
         String input = textField.getText().trim();
 
-        // ÏÐÎÂÅÐÊÀ: äîëæíî áûòü 1 èëè 2 hex-ñèìâîëà
         if (input.isEmpty()) {
-            input = "00"; // ïóñòîå ïîëå = 00
+            input = "00";
         } else if (input.length() == 1) {
-            input = "0" + input; // äîïîëíÿåì íîëèêîì
+            input = "0" + input;
         } else if (input.length() > 2) {
-            input = input.substring(0, 2); // îáðåçàåì
+            input = input.substring(0, 2);
         }
 
-        // Ïðîâåðÿåì, ÷òî ýòî âàëèäíûé hex
         try {
             Integer.parseInt(input, 16);
         } catch (NumberFormatException e) {
-            // Íåâàëèäíûé hex - âîçâðàùàåì ñòàðîå çíà÷åíèå
             textField.setText(originalValue);
             return super.stopCellEditing();
         }
 
         textField.setText(input.toUpperCase());
 
-        // ÑÎÕÐÀÍßÅÌ ÇÍÀ×ÅÍÈÅ Â ÔÀÉË!
+        //сохранение в файл
         try {
             long position = (long) row * model.getColumnCount() + col;
             byte value = (byte) Integer.parseInt(input, 16);
             model.getFileModel().setByte(position, value);
-            model.fireTableCellUpdated(row, col); // îáíîâëÿåì ÿ÷åéêó
+            model.fireTableCellUpdated(row, col);
         } catch (Exception e) {
             e.printStackTrace();
         }

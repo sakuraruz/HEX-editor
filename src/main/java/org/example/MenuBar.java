@@ -6,9 +6,11 @@ import java.awt.event.ActionListener;
 
 public class MenuBar extends JMenuBar {
     private MainWindow mainWindow;
+    private HexTable hexTable;
 
-    public MenuBar(MainWindow mainWindow){
+    public MenuBar(MainWindow mainWindow, HexTable hexTable){
         this.mainWindow = mainWindow;
+        this.hexTable = hexTable;
 
         JMenu fileMenu = new JMenu("Файл");
         JMenu viewMenu = new JMenu("Вид");
@@ -22,25 +24,12 @@ public class MenuBar extends JMenuBar {
             }
         });
 
-        JMenuItem saveItem = new JMenuItem("Сохранить");
         JMenuItem exitItem = new JMenuItem("Выход");
 
-        JMenu columnsMenu = new JMenu("Столбцы");
-        JMenuItem col8Item = new JMenuItem("8");
-        JMenuItem col16Item = new JMenuItem("16");
-        JMenuItem col32Item = new JMenuItem("32");
-        JMenuItem col64Item = new JMenuItem("64");
 
         fileMenu.add(openItem);
-        fileMenu.add(saveItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
-
-        viewMenu.add(columnsMenu);
-        columnsMenu.add(col8Item);
-        columnsMenu.add(col16Item);
-        columnsMenu.add(col32Item);
-        columnsMenu.add(col64Item);
 
         add(fileMenu);
         add(viewMenu);

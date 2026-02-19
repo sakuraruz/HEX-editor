@@ -35,7 +35,26 @@ public class HexTableModel extends AbstractTableModel {
         }
     }
 
+    @Override
+    public boolean isCellEditable(int row, int col) {
+        long position = (long) row * getColumnCount() + col;
+        return position < fileModel.getFileSize();
+    }
+
     public ByteFileModel getFileModel() {
         return fileModel;
+    }
+
+    public void deleteSelected(int startRow, int startCol, int endRow, int endCol) {
+        long startPos = (long) startRow * columns + startCol;
+        long endPos = (long) endRow * columns + endCol;
+        long length = endPos - startPos;
+
+        try {
+            fileModel.deleteWithZero(startPos, length);
+            fireTableStructureChanged();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

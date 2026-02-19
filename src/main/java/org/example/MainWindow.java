@@ -17,7 +17,7 @@ public class MainWindow extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(900, 600);
 
-        menuBar = new MenuBar(this);
+        menuBar = new MenuBar(this, hexTable);
         setJMenuBar(menuBar);
 
         fileModel = new ByteFileModel();
