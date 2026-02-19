@@ -17,8 +17,6 @@ public class MainWindow extends JFrame
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(900, 600);
 
-        menuBar = new MenuBar(this, hexTable);
-        setJMenuBar(menuBar);
 
         fileModel = new ByteFileModel();
 
@@ -31,6 +29,8 @@ public class MainWindow extends JFrame
         tableModel = new HexTableModel(fileModel);
         hexTable = new HexTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(hexTable);
+        menuBar = new MenuBar(this, hexTable);
+        setJMenuBar(menuBar);
         add(scrollPane, BorderLayout.CENTER);
         setVisible(true);
     }

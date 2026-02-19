@@ -46,15 +46,18 @@ public class HexTableModel extends AbstractTableModel {
     }
 
     public void deleteSelected(int startRow, int startCol, int endRow, int endCol) {
-        long startPos = (long) startRow * columns + startCol;
-        long endPos = (long) endRow * columns + endCol;
-        long length = endPos - startPos;
 
-        try {
-            fileModel.deleteWithZero(startPos, length);
-            fireTableStructureChanged();
-        } catch (IOException e) {
-            e.printStackTrace();
+        long endPos = (long) endRow * columns + endCol;
+
+        for (long startPos = (long) startRow * columns + startCol; startPos <= endPos; startPos += columns) {
+            long length = endCol - startCol + 1;
+            try {
+                fileModel.deleteWithZero(startPos, length);
+                fireTableStructureChanged();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 }

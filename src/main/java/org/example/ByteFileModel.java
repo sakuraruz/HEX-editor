@@ -60,12 +60,12 @@ public class ByteFileModel {
 
     //удаление нулями
     public void deleteWithZero(long startPos, long length) throws IOException {
-        if (startPos < 0 || startPos >= fileSize || length <= 0) {
+        if (startPos < 0 || startPos >= fileSize || length < 0) {
             return;
         }
         file.seek(startPos);
         long endPosition = Math.min(startPos + length ,fileSize);
-        for (long i = startPos; i <= endPosition; i++) {
+        for (long i = startPos; i < endPosition; i++) {
             file.writeByte(0);
         }
     }

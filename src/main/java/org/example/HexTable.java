@@ -21,16 +21,16 @@ public class HexTable extends JTable {
         setCellSelectionEnabled(true);
         setColumnSelectionAllowed(true);
         setRowSelectionAllowed(true);
+
+        setDragEnabled(true);
     }
 
     public int[] getSelectedRange() {
-        int startRow = getSelectedRow();
-        int endRow = getSelectionModel().getMaxSelectionIndex();
-        int startCol = getSelectedColumn();
-        int endCol = getColumnModel().getSelectionModel().getMaxSelectionIndex();
+        int[] rows = getSelectedRows();
+        int[] cols = getSelectedColumns();
 
-        if (startRow == -1 || startCol == -1) return null;
+        if (rows.length == 0 || cols.length == 0) return null;
 
-        return new int[] {startRow, startCol, endRow, endCol};
+        return new int[] {rows[0], cols[0], rows[rows.length-1], cols[cols.length-1]};
     }
 }

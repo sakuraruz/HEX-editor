@@ -13,7 +13,6 @@ public class MenuBar extends JMenuBar {
         this.hexTable = hexTable;
 
         JMenu fileMenu = new JMenu("Файл");
-        JMenu viewMenu = new JMenu("Вид");
 
         JMenuItem openItem = new JMenuItem("Открыть");
 
@@ -24,6 +23,15 @@ public class MenuBar extends JMenuBar {
             }
         });
 
+        JMenu editMenu = new JMenu("Правка");
+
+        JMenuItem deleteZeroItem = new JMenuItem("Удалить");
+        deleteZeroItem.addActionListener(e -> deleteSelected());
+
+        editMenu.add(deleteZeroItem);
+
+        add(editMenu);
+
         JMenuItem exitItem = new JMenuItem("Выход");
 
 
@@ -32,7 +40,6 @@ public class MenuBar extends JMenuBar {
         fileMenu.add(exitItem);
 
         add(fileMenu);
-        add(viewMenu);
     }
 
     private void openFile() {
@@ -45,5 +52,21 @@ public class MenuBar extends JMenuBar {
             String path = fileChooser.getSelectedFile().getAbsolutePath();
             mainWindow.openFile(path);
         }
+    }
+
+    private void deleteSelected() {
+        int[] range = hexTable.getSelectedRange();
+        if (range == null) {
+            JOptionPane.showMessageDialog(mainWindow, "Сначала выделите байты для удаления");
+            return;
+        }
+
+        int startRow = range[0];
+        int startCol = range[1];
+        int endRow = range[2];
+        int endCol = range[3];
+
+        HexTableModel model = (HexTableModel) hexTable.getModel();
+        model.deleteSelected(startRow, startCol, endRow, endCol);
     }
 }
