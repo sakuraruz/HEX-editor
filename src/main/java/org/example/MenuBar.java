@@ -31,10 +31,13 @@ public class MenuBar extends JMenuBar {
         copyItem.addActionListener(e -> copySelected());
         JMenuItem pasteItem = new JMenuItem("Вставить");
         pasteItem.addActionListener(e -> pasteSelected());
+        JMenuItem cutItem = new JMenuItem("Вырезать");
+        cutItem.addActionListener(e -> cutSelected());
 
         editMenu.add(deleteZeroItem);
         editMenu.add(copyItem);
         editMenu.add(pasteItem);
+        editMenu.add(cutItem);
         add(editMenu);
 
 
@@ -73,6 +76,10 @@ public class MenuBar extends JMenuBar {
         int endRow = range[2];
         int endCol = range[3];
 
+        if (hexTable.isEditing()) {
+            hexTable.getCellEditor().stopCellEditing();
+        }
+
         operation.execute(startRow, startCol, endRow, endCol);
     }
 
@@ -94,6 +101,13 @@ public class MenuBar extends JMenuBar {
         operateOnSelected((startRow, startCol, endRow, endCol) -> {
             HexTableModel model = (HexTableModel) hexTable.getModel();
             model.pasteSelected(startRow, startCol);
+        });
+    }
+
+    private void cutSelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.cutSelected(startRow, startCol, endRow, endCol);
         });
     }
 }

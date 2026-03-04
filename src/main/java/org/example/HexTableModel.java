@@ -60,11 +60,12 @@ public class HexTableModel extends AbstractTableModel {
             long length = endCol - startCol + 1;
             try {
                 fileModel.deleteWithZero(startPos, length);
-                fireTableStructureChanged();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        fireTableStructureChanged();
 
     }
 
@@ -118,4 +119,9 @@ public class HexTableModel extends AbstractTableModel {
 
     }
 
+
+    public void cutSelected(int startRow, int startCol, int endRow, int endCol) {
+        copySelected(startRow, startCol, endRow, endCol);
+        deleteSelected(startRow, startCol, endRow, endCol);
+    }
 }
