@@ -35,12 +35,15 @@ public class MenuBar extends JMenuBar {
         cutItem.addActionListener(e -> cutSelected());
         JMenuItem deleteShiftItem = new JMenuItem("Удалить со сдвигом");
         deleteShiftItem.addActionListener(e -> deleteWithShiftSelected());
+        JMenuItem cutShiftItem = new JMenuItem("Вырезать со сдвигом");
+        cutShiftItem.addActionListener(e -> cutWithShiftSelected());
 
         editMenu.add(deleteZeroItem);
         editMenu.add(deleteShiftItem);
         editMenu.add(copyItem);
         editMenu.add(pasteItem);
         editMenu.add(cutItem);
+        editMenu.add(cutShiftItem);
         add(editMenu);
 
 
@@ -111,6 +114,13 @@ public class MenuBar extends JMenuBar {
         operateOnSelected((startRow, startCol, endRow, endCol) -> {
             HexTableModel model = (HexTableModel) hexTable.getModel();
             model.cutSelected(startRow, startCol, endRow, endCol);
+        });
+    }
+
+    private void cutWithShiftSelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.cutWithShiftSelected(startRow, startCol, endRow, endCol);
         });
     }
 

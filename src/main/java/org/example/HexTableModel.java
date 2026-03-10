@@ -139,4 +139,9 @@ public class HexTableModel extends AbstractTableModel {
         copySelected(startRow, startCol, endRow, endCol);
         deleteSelected(startRow, startCol, endRow, endCol);
     }
+
+    public void cutWithShiftSelected(int startRow, int startCol, int endRow, int endCol) {
+        copySelected(startRow, startCol, endRow, endCol);
+        deleteWithShiftSelected(startRow, startCol, endRow, endCol);
+    }
 }
