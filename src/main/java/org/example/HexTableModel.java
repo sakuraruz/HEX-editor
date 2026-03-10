@@ -69,6 +69,21 @@ public class HexTableModel extends AbstractTableModel {
 
     }
 
+    public void deleteWithShiftSelected(int startRow, int startCol, int endRow, int endCol) {
+        try {
+            for (int row = endRow; row >= startRow; row--) {
+                long startPos = (long) row * columns + startCol;
+                long length = endCol - startCol + 1;
+
+                fileModel.deleteWithShift(startPos, length);
+            }
+
+            fireTableStructureChanged();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void copySelected(int startRow, int startCol, int endRow, int endCol) {
         int width = endCol - startCol + 1;
         int height = endRow - startRow + 1;

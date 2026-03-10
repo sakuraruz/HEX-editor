@@ -69,4 +69,30 @@ public class ByteFileModel {
             file.writeByte(0);
         }
     }
+
+    //удаление со сдвигом
+    public void deleteWithShift(long startPos, long length) throws IOException {
+        if (!isOpen || startPos < 0 || startPos >= fileSize || length <= 0) {
+            return;
+        }
+
+        long endPos = Math.min(startPos + length, fileSize);
+        long shiftLength = endPos - startPos;
+        long remainingBytes = fileSize - endPos;
+
+        if (remainingBytes > 0) {
+            // Читаем данные после удаляемого блока
+            byte[] buffer = new byte[(int) remainingBytes];
+            file.seek(endPos);
+            file.readFully(buffer);
+
+            // Записываем их на место удалённого блока
+            file.seek(startPos);
+            file.write(buffer);
+        }
+
+        // Урезаем файл
+        fileSize -= shiftLength;
+        file.setLength(fileSize);
+    }
 }

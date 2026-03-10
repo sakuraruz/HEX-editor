@@ -33,8 +33,11 @@ public class MenuBar extends JMenuBar {
         pasteItem.addActionListener(e -> pasteSelected());
         JMenuItem cutItem = new JMenuItem("Вырезать");
         cutItem.addActionListener(e -> cutSelected());
+        JMenuItem deleteShiftItem = new JMenuItem("Удалить со сдвигом");
+        deleteShiftItem.addActionListener(e -> deleteWithShiftSelected());
 
         editMenu.add(deleteZeroItem);
+        editMenu.add(deleteShiftItem);
         editMenu.add(copyItem);
         editMenu.add(pasteItem);
         editMenu.add(cutItem);
@@ -67,7 +70,7 @@ public class MenuBar extends JMenuBar {
     private void operateOnSelected(SelectedBlockOperation operation) {
         int[] range = hexTable.getSelectedRange();
         if (range == null) {
-            JOptionPane.showMessageDialog(mainWindow, "Ñíà÷àëà âûäåëèòå áàéòû");
+            JOptionPane.showMessageDialog(mainWindow, "Сначала выделите байты");
             return;
         }
 
@@ -108,6 +111,13 @@ public class MenuBar extends JMenuBar {
         operateOnSelected((startRow, startCol, endRow, endCol) -> {
             HexTableModel model = (HexTableModel) hexTable.getModel();
             model.cutSelected(startRow, startCol, endRow, endCol);
+        });
+    }
+
+    private void deleteWithShiftSelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.deleteWithShiftSelected(startRow, startCol, endRow, endCol);
         });
     }
 }
