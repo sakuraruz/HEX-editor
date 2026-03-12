@@ -48,6 +48,24 @@ public class HexTableModel extends AbstractTableModel {
         return position < fileModel.getFileSize();
     }
 
+    @Override
+    public String getColumnName(int col) {
+        return String.valueOf(col);
+    }
+
+    public String getRowHeaderValue(int row) {
+        long offset = (long) row * columns;
+        return String.format("%08X", offset);
+    }
+
+    public void setColumns(int newColumns) {
+        if (newColumns < 1) newColumns = 1;
+        if (newColumns > 64) newColumns = 64;
+
+        this.columns = newColumns;
+        fireTableStructureChanged();
+    }
+
     public ByteFileModel getFileModel() {
         return fileModel;
     }

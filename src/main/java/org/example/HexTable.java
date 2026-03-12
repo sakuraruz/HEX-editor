@@ -17,6 +17,7 @@ public class HexTable extends JTable {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         setDefaultRenderer(Object.class, centerRenderer);
+        setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         setCellSelectionEnabled(true);
         setColumnSelectionAllowed(true);

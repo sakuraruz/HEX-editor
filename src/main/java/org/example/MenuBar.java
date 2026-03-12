@@ -23,6 +23,20 @@ public class MenuBar extends JMenuBar {
             }
         });
 
+        JMenu viewMenu = new JMenu("Вид");
+        JMenu columnsMenu = new JMenu("Столбцы");
+
+        int[] columnOptions = {8, 16, 32, 64};
+        for (int cols : columnOptions) {
+            JMenuItem item = new JMenuItem(cols + " столбцов");
+            item.addActionListener(e -> {
+                HexTableModel model = (HexTableModel) hexTable.getModel();
+                model.setColumns(cols);
+            });
+            columnsMenu.add(item);
+        }
+        viewMenu.add(columnsMenu);
+
         JMenu editMenu = new JMenu("Правка");
 
         JMenuItem deleteZeroItem = new JMenuItem("Удалить");
@@ -48,6 +62,7 @@ public class MenuBar extends JMenuBar {
         editMenu.add(cutItem);
         editMenu.add(cutShiftItem);
         add(editMenu);
+        add(viewMenu);
 
 
 
