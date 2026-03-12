@@ -31,6 +31,8 @@ public class MenuBar extends JMenuBar {
         copyItem.addActionListener(e -> copySelected());
         JMenuItem pasteItem = new JMenuItem("Вставить");
         pasteItem.addActionListener(e -> pasteSelected());
+        JMenuItem pasteWithShiftItem = new JMenuItem("Вставить со сдвигом");
+        pasteWithShiftItem.addActionListener(e -> pasteWithShiftSelected());
         JMenuItem cutItem = new JMenuItem("Вырезать");
         cutItem.addActionListener(e -> cutSelected());
         JMenuItem deleteShiftItem = new JMenuItem("Удалить со сдвигом");
@@ -42,6 +44,7 @@ public class MenuBar extends JMenuBar {
         editMenu.add(deleteShiftItem);
         editMenu.add(copyItem);
         editMenu.add(pasteItem);
+        editMenu.add(pasteWithShiftItem);
         editMenu.add(cutItem);
         editMenu.add(cutShiftItem);
         add(editMenu);
@@ -107,6 +110,13 @@ public class MenuBar extends JMenuBar {
         operateOnSelected((startRow, startCol, endRow, endCol) -> {
             HexTableModel model = (HexTableModel) hexTable.getModel();
             model.pasteSelected(startRow, startCol);
+        });
+    }
+
+    private void pasteWithShiftSelected() {
+        operateOnSelected((startRow, startCol, endRow, endCol) -> {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            model.pasteWithShiftSelected(startRow, startCol);
         });
     }
 

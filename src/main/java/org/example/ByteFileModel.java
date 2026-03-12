@@ -81,18 +81,46 @@ public class ByteFileModel {
         long remainingBytes = fileSize - endPos;
 
         if (remainingBytes > 0) {
-            // Читаем данные после удаляемого блока
             byte[] buffer = new byte[(int) remainingBytes];
             file.seek(endPos);
             file.readFully(buffer);
 
-            // Записываем их на место удалённого блока
             file.seek(startPos);
             file.write(buffer);
         }
 
-        // Урезаем файл
         fileSize -= shiftLength;
         file.setLength(fileSize);
+    }
+
+    public void insertWithShift(long insertPos, byte[] data) throws IOException {
+        if (!isOpen || data == null || data.length == 0) {
+            return;
+        }
+
+        if (insertPos > fileSize) {
+            insertPos = fileSize;
+        }
+        if (insertPos < 0) {
+            insertPos = 0;
+        }
+
+        long bytesToShift = fileSize - insertPos;
+
+        if (bytesToShift > 0) {
+            byte[] buffer = new byte[(int) bytesToShift];
+            file.seek(insertPos);
+            file.readFully(buffer);
+
+            file.seek(insertPos);
+
+            file.write(data);
+
+            file.write(buffer);
+        } else {
+            file.seek(fileSize);
+            file.write(data);
+        }
+        fileSize += data.length;
     }
 }

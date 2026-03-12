@@ -117,21 +117,37 @@ public class HexTableModel extends AbstractTableModel {
 
         long startPos = (long) startRow * columns + startCol;
 
-        int countRows = clipboard.bytes.length / clipboard.originalColumns;
-        int pos = 0;
         try {
-            for (int i = 0; i < countRows; i++) {
-                for (int j = 0; j < clipboard.originalColumns; j++) {
-                    fileModel.setByte(startPos + j + i * columns, clipboard.bytes[pos++]);
-                }
+            for (int i = 0; i < clipboard.bytes.length; i++) {
+                fileModel.setByte(startPos + i, clipboard.bytes[i]);
             }
 
             fireTableDataChanged();
+            System.out.println("Вставлено " + clipboard.bytes.length + " байт в строку " + startRow);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public void pasteWithShiftSelected(int startRow, int startCol) {
+        if (clipboard == null || clipboard.bytes.length == 0) {
+            System.out.println("Буфер пуст.");
+            return;
+        }
+
+        long insertPos = (long) startRow * columns + startCol;
+
+        try {
+            fileModel.insertWithShift(insertPos, clipboard.bytes);
+
+            fireTableStructureChanged();
+            System.out.println("Вставлено со сдвигом " + clipboard.bytes.length +
+                    " байт в строку " + startRow);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
