@@ -12,6 +12,7 @@ public class MainWindow extends JFrame {
     private HexTable hexTable;
     private HexTableModel tableModel;
     private JTable rowHeaderTable;
+    private StatusBar statusBar;
 
     public MainWindow() {
         super("HEX-редактор");
@@ -42,6 +43,8 @@ public class MainWindow extends JFrame {
         headerPanel.add(cornerLabel, BorderLayout.NORTH);
         headerPanel.add(rowHeaderTable, BorderLayout.CENTER);
 
+        statusBar = new StatusBar(hexTable);
+
         JScrollPane scrollPane = new JScrollPane(hexTable);
 
         scrollPane.setRowHeaderView(headerPanel);
@@ -53,6 +56,7 @@ public class MainWindow extends JFrame {
         menuBar = new MenuBar(this, hexTable);
         setJMenuBar(menuBar);
         add(scrollPane, BorderLayout.CENTER);
+        add(statusBar, BorderLayout.SOUTH);
 
         tableModel.addTableModelListener(e -> {
             if (rowHeaderTable != null) {

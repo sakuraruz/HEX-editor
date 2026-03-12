@@ -3,10 +3,17 @@ package org.example;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.io.IOException;
 
 public class HexTable extends JTable {
+
+    private HexTableModel model;
+    private int currentRow = -1;
+    private int currentCol = -1;
+
     public HexTable(HexTableModel model) {
         super(model);
+        this.model = model;
 
         setDefaultEditor(Object.class, new HexCellEditor());
 
@@ -24,6 +31,73 @@ public class HexTable extends JTable {
         setRowSelectionAllowed(true);
 
         setDragEnabled(true);
+
+        getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                updateCurrentCell();
+            }
+        });
+
+        getColumnModel().getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                updateCurrentCell();
+            }
+        });
+    }
+
+    private void updateCurrentCell() {
+        int row = getSelectedRow();
+        int col = getSelectedColumn();
+
+        if (row != -1 && col != -1 && row < getRowCount() && col < getColumnCount()) {
+            currentRow = row;
+            currentCol = col;
+            firePropertyChange("currentByte", null, getCurrentByteValue());
+        }
+    }
+
+    public ByteValue getCurrentByteValue() {
+        if (currentRow == -1 || currentCol == -1) {
+            return null;
+        }
+
+        try {
+            long position = (long) currentRow * model.getColumnCount() + currentCol;
+            if (position >= model.getFileModel().getFileSize()) {
+                return null;
+            }
+
+            byte b = model.getFileModel().getByte(position);
+            return new ByteValue(b);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static class ByteValue {
+        public final byte value;
+        public final int unsigned;
+        public final int signed;
+
+        public ByteValue(byte b) {
+            this.value = b;
+            this.unsigned = b & 0xFF;
+            this.signed = (int) b;
+        }
+
+        public String getHex() {
+            return String.format("%02X", unsigned);
+        }
+
+        public String getUnsigned() {
+            return String.valueOf(unsigned);
+        }
+
+        public String getSigned() {
+            return String.valueOf(signed);
+        }
     }
 
     public int[] getSelectedRange() {
