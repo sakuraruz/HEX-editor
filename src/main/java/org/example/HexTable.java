@@ -53,6 +53,7 @@ public class HexTable extends JTable {
             currentRow = row;
             currentCol = col;
             firePropertyChange("currentByte", null, getCurrentByteValue());
+            firePropertyChange("currentPosition", null, getCurrentPosition());
         }
     }
 
@@ -107,5 +108,27 @@ public class HexTable extends JTable {
         if (rows.length == 0 || cols.length == 0) return null;
 
         return new int[] {rows[0], cols[0], rows[rows.length-1], cols[cols.length-1]};
+    }
+
+    public byte[] getBytesAt(long position, int count) {
+        if (position < 0 || position + count > model.getFileModel().getFileSize()) {
+            return null;
+        }
+
+        byte[] result = new byte[count];
+        try {
+            for (int i = 0; i < count; i++) {
+                result[i] = model.getFileModel().getByte(position + i);
+            }
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public long getCurrentPosition() {
+        if (currentRow == -1 || currentCol == -1) return -1;
+        return (long) currentRow * model.getColumnCount() + currentCol;
     }
 }

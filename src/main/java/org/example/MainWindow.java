@@ -13,11 +13,12 @@ public class MainWindow extends JFrame {
     private HexTableModel tableModel;
     private JTable rowHeaderTable;
     private StatusBar statusBar;
+    private BlockViewPanel blockViewPanel;
 
     public MainWindow() {
         super("HEX-редактор");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(900, 600);
+        setSize(1200, 700);  // шире для панели блоков
 
         fileModel = new ByteFileModel();
 
@@ -45,17 +46,36 @@ public class MainWindow extends JFrame {
 
         statusBar = new StatusBar(hexTable);
 
+        blockViewPanel = new BlockViewPanel(hexTable);
+
+        hexTable.addPropertyChangeListener("currentPosition", evt -> {
+            Long position = (Long) evt.getNewValue();
+            blockViewPanel.updateForPosition(position != null ? position : -1);
+        });
+
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
+        rightPanel.add(blockViewPanel);
+        rightPanel.add(Box.createVerticalGlue());
+        rightPanel.setMinimumSize(new Dimension(250, 0));
+        rightPanel.setPreferredSize(new Dimension(350, 0));
+        rightPanel.setMaximumSize(new Dimension(500, Integer.MAX_VALUE));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
         JScrollPane scrollPane = new JScrollPane(hexTable);
-
         scrollPane.setRowHeaderView(headerPanel);
-
         scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, cornerLabel);
-
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        mainPanel.add(rightPanel, BorderLayout.EAST);
 
         menuBar = new MenuBar(this, hexTable);
         setJMenuBar(menuBar);
-        add(scrollPane, BorderLayout.CENTER);
+
+        setLayout(new BorderLayout());
+        add(mainPanel, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
         tableModel.addTableModelListener(e -> {
@@ -102,7 +122,6 @@ public class MainWindow extends JFrame {
         headerTable.setFont(new Font("Monospaced", Font.BOLD, 14));
         headerTable.setBackground(new Color(240, 240, 240));
         headerTable.setForeground(Color.BLACK);
-
         headerTable.setIntercellSpacing(new Dimension(0, 0));
 
         DefaultTableCellRenderer center = new DefaultTableCellRenderer();
