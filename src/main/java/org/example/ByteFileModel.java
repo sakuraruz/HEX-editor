@@ -81,12 +81,22 @@ public class ByteFileModel {
         long remainingBytes = fileSize - endPos;
 
         if (remainingBytes > 0) {
-            byte[] buffer = new byte[(int) remainingBytes];
-            file.seek(endPos);
-            file.readFully(buffer);
+            final int BLOCK_SIZE = 1024 * 1024;
+            byte[] buffer = new byte[BLOCK_SIZE];
 
-            file.seek(startPos);
-            file.write(buffer);
+            long bytesProcessed = 0;
+
+            while (bytesProcessed < remainingBytes) {
+                int toRead = (int) Math.min(BLOCK_SIZE, remainingBytes - bytesProcessed);
+
+                file.seek(endPos + bytesProcessed);
+                file.readFully(buffer, 0, toRead);
+
+                file.seek(startPos + bytesProcessed);
+                file.write(buffer, 0, toRead);
+
+                bytesProcessed += toRead;
+            }
         }
 
         fileSize -= shiftLength;
@@ -98,29 +108,35 @@ public class ByteFileModel {
             return;
         }
 
-        if (insertPos > fileSize) {
-            insertPos = fileSize;
-        }
-        if (insertPos < 0) {
-            insertPos = 0;
-        }
+        if (insertPos > fileSize) insertPos = fileSize;
+        if (insertPos < 0) insertPos = 0;
 
         long bytesToShift = fileSize - insertPos;
 
-        if (bytesToShift > 0) {
-            byte[] buffer = new byte[(int) bytesToShift];
-            file.seek(insertPos);
-            file.readFully(buffer);
-
-            file.seek(insertPos);
-
-            file.write(data);
-
-            file.write(buffer);
-        } else {
-            file.seek(fileSize);
-            file.write(data);
-        }
         fileSize += data.length;
+        file.setLength(fileSize);
+
+        if (bytesToShift > 0) {
+            final int BLOCK_SIZE = 1024 * 1024;
+            byte[] buffer = new byte[BLOCK_SIZE];
+
+            long bytesMoved = 0;
+
+            while (bytesMoved < bytesToShift) {
+                int toMove = (int) Math.min(BLOCK_SIZE, bytesToShift - bytesMoved);
+
+                long readPos = insertPos + (bytesToShift - bytesMoved - toMove);
+
+                file.seek(readPos);
+                file.readFully(buffer, 0, toMove);
+
+                file.seek(readPos + data.length);
+                file.write(buffer, 0, toMove);
+
+                bytesMoved += toMove;
+            }
+        }
+        file.seek(insertPos);
+        file.write(data);
     }
 }

@@ -123,13 +123,10 @@ public class HexTableModel extends AbstractTableModel {
         clipboard = new CopiedData();
         clipboard.bytes = bytes;
         clipboard.originalColumns = width;
-
-        System.out.println("Скопировано " + bytes.length + " байт");
     }
 
     public void pasteSelected(int startRow, int startCol) {
         if (clipboard == null || clipboard.bytes.length == 0) {
-            System.out.println("Буфер пуст.");
             return;
         }
 
@@ -141,7 +138,6 @@ public class HexTableModel extends AbstractTableModel {
             }
 
             fireTableDataChanged();
-            System.out.println("Вставлено " + clipboard.bytes.length + " байт в строку " + startRow);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -150,7 +146,6 @@ public class HexTableModel extends AbstractTableModel {
 
     public void pasteWithShiftSelected(int startRow, int startCol) {
         if (clipboard == null || clipboard.bytes.length == 0) {
-            System.out.println("Буфер пуст.");
             return;
         }
 
@@ -160,8 +155,6 @@ public class HexTableModel extends AbstractTableModel {
             fileModel.insertWithShift(insertPos, clipboard.bytes);
 
             fireTableStructureChanged();
-            System.out.println("Вставлено со сдвигом " + clipboard.bytes.length +
-                    " байт в строку " + startRow);
 
         } catch (IOException e) {
             e.printStackTrace();

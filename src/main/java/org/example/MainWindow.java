@@ -24,7 +24,6 @@ public class MainWindow extends JFrame {
 
         try {
             fileModel.openFile("test.bin");
-            System.out.println("Файл открыт! Размер: " + fileModel.getFileSize() + " байт");
         } catch (IOException e) {
             System.out.println("Не удалось открыть файл: " + e.getMessage());
         }
