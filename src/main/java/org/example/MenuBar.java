@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 public class MenuBar extends JMenuBar {
     private MainWindow mainWindow;
     private HexTable hexTable;
+    private SearchDialog searchDialog;
 
     public MenuBar(MainWindow mainWindow, HexTable hexTable){
         this.mainWindow = mainWindow;
@@ -54,6 +55,13 @@ public class MenuBar extends JMenuBar {
         JMenuItem cutShiftItem = new JMenuItem("Вырезать со сдвигом");
         cutShiftItem.addActionListener(e -> cutWithShiftSelected());
 
+        JMenu searchMenu = new JMenu("Поиск");
+
+        JMenuItem findItem = new JMenuItem("Найти");
+        findItem.addActionListener(e -> showSearchDialog());
+
+        searchMenu.add(findItem);
+
         editMenu.add(deleteZeroItem);
         editMenu.add(deleteShiftItem);
         editMenu.add(copyItem);
@@ -63,6 +71,7 @@ public class MenuBar extends JMenuBar {
         editMenu.add(cutShiftItem);
         add(editMenu);
         add(viewMenu);
+        add(searchMenu);
 
 
 
@@ -154,5 +163,15 @@ public class MenuBar extends JMenuBar {
             HexTableModel model = (HexTableModel) hexTable.getModel();
             model.deleteWithShiftSelected(startRow, startCol, endRow, endCol);
         });
+    }
+
+    private void showSearchDialog() {
+        if (searchDialog == null || !searchDialog.isVisible()) {
+            searchDialog = new SearchDialog(mainWindow, hexTable,
+                    ((HexTableModel) hexTable.getModel()).getFileModel());
+            searchDialog.setVisible(true);
+        } else {
+            searchDialog.toFront();
+        }
     }
 }
