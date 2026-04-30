@@ -1,10 +1,23 @@
 package org.example;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JTable;
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.JPanel;
+import javax.swing.BoxLayout;
+import javax.swing.Box;
+import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
+import javax.swing.JOptionPane;
 import java.io.IOException;
+import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.Color;
 
 public class MainWindow extends JFrame {
     private ByteFileModel fileModel;
@@ -18,7 +31,7 @@ public class MainWindow extends JFrame {
     public MainWindow() {
         super("HEX-редактор");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1200, 700);  // шире для панели блоков
+        setSize(1200, 700);
 
         fileModel = new ByteFileModel();
 

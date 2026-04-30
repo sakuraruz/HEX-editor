@@ -1,9 +1,10 @@
 package org.example;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
+import javax.swing.JTable;
+import javax.swing.JLabel;
 import java.io.IOException;
+import java.awt.Font;
 
 public class HexTable extends JTable {
 

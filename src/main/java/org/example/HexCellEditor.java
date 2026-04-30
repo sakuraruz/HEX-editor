@@ -1,10 +1,13 @@
 package org.example;
 
-import javax.swing.*;
 import javax.swing.table.TableCellEditor;
-import java.awt.*;
+import javax.swing.JTextField;
+import javax.swing.JTable;
+import javax.swing.AbstractCellEditor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.Font;
+import java.awt.Component;
 
 public class HexCellEditor extends AbstractCellEditor implements TableCellEditor {
 

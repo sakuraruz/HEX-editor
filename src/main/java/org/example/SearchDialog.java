@@ -1,8 +1,19 @@
 package org.example;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.JDialog;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.BorderFactory;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
+
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class SearchDialog extends JDialog {

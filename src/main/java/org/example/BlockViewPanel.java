@@ -1,7 +1,13 @@
 package org.example;
 
-import javax.swing.*;
-import java.awt.*;
+
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.BorderFactory;
+import javax.swing.SwingConstants;
+import java.awt.GridLayout;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
 public class BlockViewPanel extends JPanel {
 

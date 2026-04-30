@@ -1,7 +1,9 @@
 package org.example;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.BorderFactory;
+import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 

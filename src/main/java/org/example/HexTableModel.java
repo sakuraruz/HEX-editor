@@ -38,7 +38,8 @@ public class HexTableModel extends AbstractTableModel {
             byte b = fileModel.getByte(position);
             return String.format("%02X", (b & 0xFF));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Ошибка чтения байта на позиции " + position + ": " + e.getMessage());
+            return "??";
         }
     }
 
