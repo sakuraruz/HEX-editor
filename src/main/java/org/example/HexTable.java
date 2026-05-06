@@ -3,20 +3,27 @@ package org.example;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.JTable;
 import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
 import java.io.IOException;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
+import java.util.EventObject;
 
 public class HexTable extends JTable {
 
     private HexTableModel model;
     private int currentRow = -1;
     private int currentCol = -1;
+    private HexCellEditor customEditor;
+    private char pendingCharFromKey = '\0';
 
     public HexTable(HexTableModel model) {
         super(model);
         this.model = model;
+        customEditor = new HexCellEditor();
 
-        setDefaultEditor(Object.class, new HexCellEditor());
+        setDefaultEditor(Object.class, customEditor);
 
         setFont(new Font("Monospaced", Font.PLAIN, 14));
         getTableHeader().setReorderingAllowed(false);
@@ -30,8 +37,32 @@ public class HexTable extends JTable {
         setCellSelectionEnabled(true);
         setColumnSelectionAllowed(true);
         setRowSelectionAllowed(true);
+        setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        setSurrendersFocusOnKeystroke(true);
 
         setDragEnabled(true);
+
+        setFocusable(true);
+        requestFocusInWindow();
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                char keyChar = e.getKeyChar();
+
+                if (HexUtils.isHexChar(keyChar)) {
+                    int row = getSelectedRow();
+                    int col = getSelectedColumn();
+
+                    if (row != -1 && col != -1) {
+                        pendingCharFromKey = keyChar;
+                        editCellAt(row, col);
+                        requestFocus();
+                        e.consume();
+                    }
+                }
+            }
+        });
 
         getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -44,6 +75,27 @@ public class HexTable extends JTable {
                 updateCurrentCell();
             }
         });
+    }
+
+    @Override
+    public boolean editCellAt(int row, int column, EventObject e) {
+        if (pendingCharFromKey != '\0') {
+            // Передаём символ в редактор
+            customEditor.setPendingChar(pendingCharFromKey);
+            pendingCharFromKey = '\0';
+            return super.editCellAt(row, column, e);
+        }
+
+        // Для мыши - проверяем двойной клик
+        if (e instanceof java.awt.event.MouseEvent) {
+            java.awt.event.MouseEvent me = (java.awt.event.MouseEvent) e;
+            if (me.getClickCount() >= 2) {
+                return super.editCellAt(row, column, e);
+            }
+            return false;
+        }
+
+        return super.editCellAt(row, column, e);
     }
 
     private void updateCurrentCell() {

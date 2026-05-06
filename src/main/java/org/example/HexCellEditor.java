@@ -6,6 +6,10 @@ import javax.swing.JTable;
 import javax.swing.AbstractCellEditor;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
+import java.util.EventObject;
 import java.awt.Font;
 import java.awt.Component;
 
@@ -15,6 +19,8 @@ public class HexCellEditor extends AbstractCellEditor implements TableCellEditor
     private String originalValue;
     private int row, col;
     private HexTableModel model;
+    private char pendingChar = '\0';
+    private boolean isKeyboardEdit = false;
 
     public HexCellEditor() {
         textField = new JTextField();
@@ -23,29 +29,49 @@ public class HexCellEditor extends AbstractCellEditor implements TableCellEditor
 
         textField.addActionListener(e -> stopCellEditing());
 
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (!isKeyboardEdit) {
+                    textField.selectAll();
+                }
+                // Сбрасываем флаг
+                isKeyboardEdit = false;
+            }
+        });
+
         textField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
                 char c = e.getKeyChar();
 
-                if (!isHexChar(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
+                if (!HexUtils.isHexChar(c) && c != KeyEvent.VK_BACK_SPACE && c != KeyEvent.VK_DELETE) {
                     e.consume();
+                    return;
                 }
 
-                if (textField.getText().length() >= 2 &&
-                        c != KeyEvent.VK_BACK_SPACE &&
-                        c != KeyEvent.VK_DELETE) {
-                    e.consume();
+                String currentText = textField.getText();
+
+                if (currentText.length() >= 2 && HexUtils.isHexChar(c)) {
+                    textField.setText("");
                 }
             }
         });
     }
 
-    private boolean isHexChar(char c) {
-        return (c >= '0' && c <= '9') ||
-                (c >= 'A' && c <= 'F') ||
-                (c >= 'a' && c <= 'f');
+    @Override
+    public boolean isCellEditable(EventObject anEvent) {
+        if (anEvent instanceof MouseEvent) {
+            MouseEvent mouseEvent = (MouseEvent) anEvent;
+            return mouseEvent.getClickCount() >= 2;
+        }
+        return true;
     }
+
+    public void setPendingChar(char c) {
+        this.pendingChar = c;
+    }
+
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -53,8 +79,16 @@ public class HexCellEditor extends AbstractCellEditor implements TableCellEditor
         this.col = column;
         this.model = (HexTableModel) table.getModel();
         this.originalValue = value.toString();
-        textField.setText(originalValue);
-        textField.selectAll();
+
+        if (pendingChar != '\0') {
+            textField.setText("");
+            pendingChar = '\0';
+            isKeyboardEdit = true;
+        } else {
+            textField.setText(originalValue);
+            isKeyboardEdit = false;
+        }
+
 
         return textField;
     }
