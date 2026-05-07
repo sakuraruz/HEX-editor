@@ -39,14 +39,8 @@ public class MainWindow extends JFrame {
         setSize(1200, 700);
 
         fileModel = new ByteFileModel();
-
-        try {
-            fileModel.openFile("test.bin");
-        } catch (IOException e) {
-            log.error("не удалось открыть файл ", e.getMessage());
-        }
-
         tableModel = new HexTableModel(fileModel);
+        tableModel.setParentFrame(this);
         hexTable = new HexTable(tableModel);
 
         rowHeaderTable = createRowHeader();

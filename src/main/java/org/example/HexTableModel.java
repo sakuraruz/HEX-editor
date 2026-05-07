@@ -2,8 +2,11 @@ package org.example;
 
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.swing.JFrame;
 
 public class HexTableModel extends AbstractTableModel {
 
@@ -18,8 +21,33 @@ public class HexTableModel extends AbstractTableModel {
     private ByteFileModel fileModel;
     private int columns = 16;
 
+    private JFrame parentFrame;
+
     public HexTableModel(ByteFileModel fileModel) {
         this.fileModel = fileModel;
+    }
+
+    public void setParentFrame(JFrame frame) {
+        this.parentFrame = frame;
+    }
+
+    private void showError(String message, Exception e) {
+        log.error("{}: {}", message, e.getMessage(), e);
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(parentFrame,
+                    message + "\n\nДетали: " + e.getMessage(),
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE);
+        });
+    }
+
+    private void showWarning(String message) {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(parentFrame,
+                    message,
+                    "Предупреждение",
+                    JOptionPane.WARNING_MESSAGE);
+        });
     }
 
     @Override
@@ -58,8 +86,11 @@ public class HexTableModel extends AbstractTableModel {
             byte byteValue = (byte) intValue;
             fileModel.setByte(position, byteValue);
             fireTableCellUpdated(row, col);
-        } catch (NumberFormatException | IOException e) {
-            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            showWarning("Некорректное шестнадцатеричное значение: " + value +
+                    "\nДопустимые символы: 0-9, A-F");
+        } catch (IOException e) {
+            showError("Ошибка при установке значения в ячейке", e);
         }
     }
 
@@ -95,7 +126,7 @@ public class HexTableModel extends AbstractTableModel {
         try {
             fileModel.save();
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Не удалось сохранить файл перед удалением", e);
             return;
         }
 
@@ -106,7 +137,8 @@ public class HexTableModel extends AbstractTableModel {
             try {
                 fileModel.deleteWithZero(startPos, length);
             } catch (IOException e) {
-                e.printStackTrace();
+                showError("Ошибка при удалении байтов на позиции " + startPos, e);
+                return;
             }
         }
 
@@ -119,7 +151,7 @@ public class HexTableModel extends AbstractTableModel {
         try {
             fileModel.save();
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Не удалось сохранить файл перед удалением", e);
             return;
         }
 
@@ -133,7 +165,7 @@ public class HexTableModel extends AbstractTableModel {
 
             fireTableStructureChanged();
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Ошибка при удалении со сдвигом", e);
         }
     }
 
@@ -162,6 +194,7 @@ public class HexTableModel extends AbstractTableModel {
 
     public void pasteSelected(int startRow, int startCol) {
         if (clipboard == null || clipboard.bytes.length == 0) {
+            showWarning("Буфер обмена пуст. Сначала скопируйте данные.");
             return;
         }
 
@@ -179,12 +212,13 @@ public class HexTableModel extends AbstractTableModel {
             fireTableDataChanged();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Ошибка при вставке данных", e);
         }
     }
 
     public void pasteWithShiftSelected(int startRow, int startCol) {
         if (clipboard == null || clipboard.bytes.length == 0) {
+            showWarning("Буфер обмена пуст. Сначала скопируйте данные.");
             return;
         }
 
@@ -196,7 +230,7 @@ public class HexTableModel extends AbstractTableModel {
             fireTableStructureChanged();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Ошибка при вставке со сдвигом", e);
         }
     }
 
