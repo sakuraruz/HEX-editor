@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.swing.JFrame;
+import java.awt.Component;
 
 public class HexTableModel extends AbstractTableModel {
 
@@ -20,7 +21,6 @@ public class HexTableModel extends AbstractTableModel {
     private static CopiedData clipboard = null;
     private ByteFileModel fileModel;
     private int columns = 16;
-
     private JFrame parentFrame;
 
     public HexTableModel(ByteFileModel fileModel) {
@@ -49,6 +49,16 @@ public class HexTableModel extends AbstractTableModel {
                     JOptionPane.WARNING_MESSAGE);
         });
     }
+
+    private void showInfo(String message) {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(parentFrame,
+                    message,
+                    "Информация",
+                    JOptionPane.INFORMATION_MESSAGE);
+        });
+    }
+
 
     @Override
     public int getRowCount() {
@@ -123,50 +133,44 @@ public class HexTableModel extends AbstractTableModel {
     }
 
     public void deleteSelected(int startRow, int startCol, int endRow, int endCol) {
-        try {
-            fileModel.save();
-        } catch (IOException e) {
-            showError("Не удалось сохранить файл перед удалением", e);
-            return;
-        }
-
-        long endPos = (long) endRow * columns + endCol;
-
-        for (long startPos = (long) startRow * columns + startCol; startPos <= endPos; startPos += columns) {
-            long length = endCol - startCol + 1;
-            try {
-                fileModel.deleteWithZero(startPos, length);
-            } catch (IOException e) {
-                showError("Ошибка при удалении байтов на позиции " + startPos, e);
-                return;
-            }
-        }
-
-        fireTableStructureChanged();
-
+        BackgroundFileOperation.execute(parentFrame,
+                "Удаление",
+                "Удаление байтов...",
+                () -> {
+                    fileModel.save();
+                    long endPos = (long) endRow * columns + endCol;
+                    for (long startPos = (long) startRow * columns + startCol; startPos <= endPos; startPos += columns) {
+                        long length = endCol - startCol + 1;
+                        fileModel.deleteWithZero(startPos, length);
+                    }
+                },
+                () -> {
+                    fireTableStructureChanged();
+                    showInfo("Удаление выполнено успешно");
+                },
+                (e) -> showError("Ошибка при удалении", e)
+        );
     }
 
     public void deleteWithShiftSelected(int startRow, int startCol, int endRow, int endCol) {
 
-        try {
-            fileModel.save();
-        } catch (IOException e) {
-            showError("Не удалось сохранить файл перед удалением", e);
-            return;
-        }
-
-        try {
-            for (int row = endRow; row >= startRow; row--) {
-                long startPos = (long) row * columns + startCol;
-                long length = endCol - startCol + 1;
-
-                fileModel.deleteWithShift(startPos, length);
-            }
-
-            fireTableStructureChanged();
-        } catch (IOException e) {
-            showError("Ошибка при удалении со сдвигом", e);
-        }
+        BackgroundFileOperation.execute(parentFrame,
+                "Удаление со сдвигом",
+                "Удаление байтов со сдвигом...",
+                () -> {
+                    fileModel.save();
+                    for (int row = endRow; row >= startRow; row--) {
+                        long startPos = (long) row * columns + startCol;
+                        long length = endCol - startCol + 1;
+                        fileModel.deleteWithShift(startPos, length);
+                    }
+                },
+                () -> {
+                    fireTableStructureChanged();
+                    showInfo("Удаление со сдвигом выполнено успешно");
+                },
+                (e) -> showError("Ошибка при удалении со сдвигом", e)
+        );
     }
 
     public void copySelected(int startRow, int startCol, int endRow, int endCol) {
@@ -198,22 +202,25 @@ public class HexTableModel extends AbstractTableModel {
             return;
         }
 
-        long startPos = (long) startRow * columns + startCol;
-
-        try {
-            for (int i = 0; i < clipboard.bytes.length; i++) {
-                long pos = startPos + i;
-                if (pos >= fileModel.getFileSize()) {
-                    break;
-                }
-                fileModel.setByte(startPos + i, clipboard.bytes[i]);
-            }
-
-            fireTableDataChanged();
-
-        } catch (IOException e) {
-            showError("Ошибка при вставке данных", e);
-        }
+        BackgroundFileOperation.execute(parentFrame,
+                "Вставка",
+                "Вставка байтов...",
+                () -> {
+                    long startPos = (long) startRow * columns + startCol;
+                    for (int i = 0; i < clipboard.bytes.length; i++) {
+                        long pos = startPos + i;
+                        if (pos >= fileModel.getFileSize()) {
+                            break;
+                        }
+                        fileModel.setByte(pos, clipboard.bytes[i]);
+                    }
+                },
+                () -> {
+                    fireTableDataChanged();
+                    showInfo("Вставка выполнена успешно");
+                },
+                (e) -> showError("Ошибка при вставке", e)
+        );
     }
 
     public void pasteWithShiftSelected(int startRow, int startCol) {
@@ -222,16 +229,19 @@ public class HexTableModel extends AbstractTableModel {
             return;
         }
 
-        long insertPos = (long) startRow * columns + startCol;
-
-        try {
-            fileModel.insertWithShift(insertPos, clipboard.bytes);
-
-            fireTableStructureChanged();
-
-        } catch (IOException e) {
-            showError("Ошибка при вставке со сдвигом", e);
-        }
+        BackgroundFileOperation.execute(parentFrame,
+                "Вставка со сдвигом",
+                "Вставка байтов со сдвигом...",
+                () -> {
+                    long insertPos = (long) startRow * columns + startCol;
+                    fileModel.insertWithShift(insertPos, clipboard.bytes);
+                },
+                () -> {
+                    fireTableStructureChanged();
+                    showInfo("Вставка со сдвигом выполнена успешно");
+                },
+                (e) -> showError("Ошибка при вставке со сдвигом", e)
+        );
     }
 
 

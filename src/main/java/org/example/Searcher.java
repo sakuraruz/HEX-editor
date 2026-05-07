@@ -6,6 +6,7 @@ public class Searcher {
 
     private ByteFileModel fileModel;
     private SearchPattern pattern;
+    private volatile boolean cancelled = false;
 
     public Searcher(ByteFileModel fileModel) {
         this.fileModel = fileModel;
@@ -15,6 +16,10 @@ public class Searcher {
         this.pattern = pattern;
     }
 
+    public void cancel() {
+        cancelled = true;
+    }
+
     public long findNext(long startPos) throws IOException {
         if (pattern == null) return -1;
 
@@ -22,6 +27,12 @@ public class Searcher {
         int patternLength = pattern.length();
 
         for (long pos = startPos; pos <= fileSize - patternLength; pos++) {
+
+            if (cancelled) {
+                cancelled = false;
+                return -1;
+            }
+
             if (matchesAt(pos)) {
                 return pos;
             }
