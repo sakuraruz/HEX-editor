@@ -1,5 +1,8 @@
 package org.example;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JFrame;
@@ -20,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 public class MainWindow extends JFrame {
+    private static final Logger log = LoggerFactory.getLogger(HexTableModel.class);
+
     private ByteFileModel fileModel;
     private MenuBar menuBar;
     private HexTable hexTable;
@@ -38,7 +43,7 @@ public class MainWindow extends JFrame {
         try {
             fileModel.openFile("test.bin");
         } catch (IOException e) {
-            System.out.println("Не удалось открыть файл: " + e.getMessage());
+            log.error("не удалось открыть файл ", e.getMessage());
         }
 
         tableModel = new HexTableModel(fileModel);
@@ -154,6 +159,38 @@ public class MainWindow extends JFrame {
             setTitle("HEX-редактор - " + path);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ошибка: " + e.getMessage());
+        }
+    }
+
+    public void updateTitle(String filePath) {
+        setTitle("Hex Editor - " + filePath);
+    }
+
+    public void closeApplication() {
+        HexTableModel model = (HexTableModel) hexTable.getModel();
+        ByteFileModel fileModel = model.getFileModel();
+
+        if (fileModel.isModified()) {
+            int result = JOptionPane.showConfirmDialog(this,
+                    "Файл был изменен. Сохранить изменения?",
+                    "Сохранение изменений",
+                    JOptionPane.YES_NO_CANCEL_OPTION);
+
+            if (result == JOptionPane.YES_OPTION) {
+                try {
+                    fileModel.save();
+                    System.exit(0);
+                } catch (IOException e) {
+                    JOptionPane.showMessageDialog(this,
+                            "Ошибка при сохранении: " + e.getMessage(),
+                            "Ошибка",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            } else if (result == JOptionPane.NO_OPTION) {
+                System.exit(0);
+            }
+        } else {
+            System.exit(0);
         }
     }
 }

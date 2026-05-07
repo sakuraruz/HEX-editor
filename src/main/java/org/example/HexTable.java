@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
 import java.util.EventObject;
+import java.awt.event.MouseEvent;
 
 public class HexTable extends JTable {
 
@@ -87,8 +88,8 @@ public class HexTable extends JTable {
         }
 
         // Для мыши - проверяем двойной клик
-        if (e instanceof java.awt.event.MouseEvent) {
-            java.awt.event.MouseEvent me = (java.awt.event.MouseEvent) e;
+        if (e instanceof MouseEvent) {
+            MouseEvent me = (MouseEvent) e;
             if (me.getClickCount() >= 2) {
                 return super.editCellAt(row, column, e);
             }

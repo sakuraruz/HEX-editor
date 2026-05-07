@@ -2,6 +2,7 @@ package org.example;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.math.BigInteger;
 
 public class ByteInterpreter {
 
@@ -44,11 +45,11 @@ public class ByteInterpreter {
         return buffer.getLong(0);
     }
 
-    public java.math.BigInteger getUInt64() {
-        if (bytes.length < 8) return java.math.BigInteger.ZERO;
+    public BigInteger getUInt64() {
+        if (bytes.length < 8) return BigInteger.ZERO;
         byte[] unsignedBytes = new byte[8];
         System.arraycopy(bytes, 0, unsignedBytes, 0, 8);
-        return new java.math.BigInteger(1, unsignedBytes); // 1 = positive
+        return new BigInteger(1, unsignedBytes);
     }
 
     public double getFloat64() {

@@ -2,8 +2,12 @@ package org.example;
 
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HexTableModel extends AbstractTableModel {
+
+    private static final Logger log = LoggerFactory.getLogger(HexTableModel.class);
 
     private static class CopiedData {
         byte[] bytes;
@@ -38,8 +42,24 @@ public class HexTableModel extends AbstractTableModel {
             byte b = fileModel.getByte(position);
             return String.format("%02X", (b & 0xFF));
         } catch (IOException e) {
-            System.err.println("Ошибка чтения байта на позиции " + position + ": " + e.getMessage());
+            log.error("Ошибка чтения байта на позиции {}", position, e);
             return "??";
+        }
+    }
+
+    @Override
+    public void setValueAt(Object value, int row, int col) {
+        try {
+            long position = (long) row * columns + col;
+            String hex = ((String) value).trim();
+            if (hex.isEmpty()) return;
+
+            int intValue = Integer.parseInt(hex, 16);
+            byte byteValue = (byte) intValue;
+            fileModel.setByte(position, byteValue);
+            fireTableCellUpdated(row, col);
+        } catch (NumberFormatException | IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -72,6 +92,12 @@ public class HexTableModel extends AbstractTableModel {
     }
 
     public void deleteSelected(int startRow, int startCol, int endRow, int endCol) {
+        try {
+            fileModel.save();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         long endPos = (long) endRow * columns + endCol;
 
@@ -89,6 +115,14 @@ public class HexTableModel extends AbstractTableModel {
     }
 
     public void deleteWithShiftSelected(int startRow, int startCol, int endRow, int endCol) {
+
+        try {
+            fileModel.save();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
         try {
             for (int row = endRow; row >= startRow; row--) {
                 long startPos = (long) row * columns + startCol;
@@ -135,6 +169,10 @@ public class HexTableModel extends AbstractTableModel {
 
         try {
             for (int i = 0; i < clipboard.bytes.length; i++) {
+                long pos = startPos + i;
+                if (pos >= fileModel.getFileSize()) {
+                    break;
+                }
                 fileModel.setByte(startPos + i, clipboard.bytes[i]);
             }
 
@@ -171,5 +209,9 @@ public class HexTableModel extends AbstractTableModel {
     public void cutWithShiftSelected(int startRow, int startCol, int endRow, int endCol) {
         copySelected(startRow, startCol, endRow, endCol);
         deleteWithShiftSelected(startRow, startCol, endRow, endCol);
+    }
+
+    public int getColumns() {
+        return columns;
     }
 }

@@ -7,6 +7,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class MenuBar extends JMenuBar {
     private MainWindow mainWindow;
@@ -27,6 +28,12 @@ public class MenuBar extends JMenuBar {
                 openFile();
             }
         });
+
+        JMenuItem saveItem = new JMenuItem("Сохранить");
+        saveItem.addActionListener(e -> saveFile());
+
+        JMenuItem saveAsItem = new JMenuItem("Сохранить как");
+        saveAsItem.addActionListener(e -> saveFileAs());
 
         JMenu viewMenu = new JMenu("Вид");
         JMenu columnsMenu = new JMenu("Столбцы");
@@ -80,9 +87,13 @@ public class MenuBar extends JMenuBar {
 
 
         JMenuItem exitItem = new JMenuItem("Выход");
+        exitItem.addActionListener(e -> mainWindow.closeApplication());
 
 
         fileMenu.add(openItem);
+        fileMenu.addSeparator();
+        fileMenu.add(saveItem);
+        fileMenu.add(saveAsItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
 
@@ -176,6 +187,56 @@ public class MenuBar extends JMenuBar {
             searchDialog.setVisible(true);
         } else {
             searchDialog.toFront();
+        }
+    }
+
+    private void saveFile() {
+        try {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            ByteFileModel fileModel = model.getFileModel();
+
+            if (fileModel != null) {
+                fileModel.save();
+                JOptionPane.showMessageDialog(mainWindow,
+                        "Файл успешно сохранен",
+                        "Сохранение",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Ошибка при сохранении: " + e.getMessage(),
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveFileAs() {
+        try {
+            HexTableModel model = (HexTableModel) hexTable.getModel();
+            ByteFileModel fileModel = model.getFileModel();
+
+            if (fileModel == null) return;
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Сохранить файл как");
+            fileChooser.setSelectedFile(fileModel.getCurrentFile());
+
+            int result = fileChooser.showSaveDialog(mainWindow);
+
+            if (result == JFileChooser.APPROVE_OPTION) {
+                String newPath = fileChooser.getSelectedFile().getAbsolutePath();
+                fileModel.saveAs(newPath);
+                mainWindow.updateTitle(newPath);
+                JOptionPane.showMessageDialog(mainWindow,
+                        "Файл сохранен как: " + newPath,
+                        "Сохранение",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(mainWindow,
+                    "Ошибка при сохранении: " + e.getMessage(),
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }
