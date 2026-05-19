@@ -18,6 +18,7 @@ public class ByteFileModel {
     private byte[] buffer;
     private long bufferStartPos;
     private int bufferValidBytes;
+    private boolean readOnly = true;
     private static final int BUFFER_SIZE = 8192;
 
     private File currentFile;
@@ -26,11 +27,13 @@ public class ByteFileModel {
     private static final int MAX_PENDING_WRITES = 10000;
     private File tempFileForSaveAs = null;
 
-    public void openFile(String name) throws IOException {
-        log.info("Открытие файла: {}", name);
+    public void openFile(String name, boolean readOnly) throws IOException {
+        log.info("Открытие файла: {} (режим: {})", name, readOnly ? "READ-ONLY" : "READ-WRITE");
         if (isOpen) close();
         this.currentFile = new File(name);
-        file = new RandomAccessFile(name, "rw");
+        this.readOnly = readOnly;
+        String mode = readOnly ? "r" : "rw";
+        file = new RandomAccessFile(name, mode);
         fileSize = file.length();
         isOpen = true;
         buffer = new byte[BUFFER_SIZE];
@@ -41,8 +44,40 @@ public class ByteFileModel {
         log.debug("Файл открыт. Размер: {} байт", fileSize);
     }
 
+    public void enableEditing() throws IOException {
+        if (!readOnly) {
+            log.debug("Режим редактирования уже активен");
+            return;
+        }
+
+        log.info("Переключение в режим редактирования");
+
+        String filePath = currentFile.getAbsolutePath();
+        long currentPosition = 0;
+
+        if (file != null) {
+            currentPosition = file.getFilePointer();
+        }
+
+        close();
+
+        file = new RandomAccessFile(filePath, "rw");
+        fileSize = file.length();
+        isOpen = true;
+        readOnly = false;
+        buffer = new byte[BUFFER_SIZE];
+        bufferStartPos = -1;
+        bufferValidBytes = 0;
+
+        if (currentPosition > 0 && currentPosition < fileSize) {
+            file.seek(currentPosition);
+        }
+
+        log.debug("Режим редактирования активирован");
+    }
+
     public byte getByte(long position) throws IOException {
-        if (pendingWrites.containsKey(position)) {
+        if (!readOnly && pendingWrites.containsKey(position)) {
             log.trace("Возвращаем измененный байт на позиции {}", position);
             return pendingWrites.get(position);
         }
@@ -80,7 +115,7 @@ public class ByteFileModel {
     }
 
     public void close() throws IOException {
-        if (modified && file != null) {
+        if (!readOnly && modified && file != null) {
             save();
         }
 
@@ -106,6 +141,10 @@ public class ByteFileModel {
             return;
         }
 
+        if (readOnly) {
+            return;
+        }
+
         pendingWrites.put(position, value);
         modified = true;
 
@@ -120,6 +159,10 @@ public class ByteFileModel {
     }
 
     public void save() throws IOException {
+        if (readOnly) {
+            return;
+        }
+
         if (!modified || !isOpen || pendingWrites.isEmpty()) {
             return;
         }
@@ -153,6 +196,10 @@ public class ByteFileModel {
     private void writeBlock(long start, long end) throws IOException {
         if (start > end) return;
 
+        if (readOnly) {
+            return;
+        }
+
         int length = (int)(end - start + 1);
         byte[] blockData = new byte[length];
 
@@ -172,7 +219,11 @@ public class ByteFileModel {
     }
 
     public void saveAs(String newFileName) throws IOException {
-        save();
+        boolean wasReadOnly = readOnly;
+
+        if (!wasReadOnly) {
+            save();
+        }
 
         try (RandomAccessFile sourceFile = new RandomAccessFile(currentFile, "r");
              RandomAccessFile destFile = new RandomAccessFile(newFileName, "rw")) {
@@ -197,11 +248,14 @@ public class ByteFileModel {
         }
 
         close();
-        openFile(newFileName);
+        openFile(newFileName, false);
     }
 
     //удаление нулями
     public void deleteWithZero(long startPos, long length) throws IOException {
+        if (readOnly) {
+            return;
+        }
         if (startPos < 0 || startPos >= fileSize || length < 0) {
             return;
         }
@@ -222,6 +276,9 @@ public class ByteFileModel {
 
     //удаление со сдвигом
     public void deleteWithShift(long startPos, long length) throws IOException {
+        if (readOnly) {
+            return;
+        }
         if (!isOpen || startPos < 0 || startPos >= fileSize || length <= 0) {
             return;
         }
@@ -262,6 +319,9 @@ public class ByteFileModel {
     }
 
     public void insertWithShift(long insertPos, byte[] data) throws IOException {
+        if (readOnly) {
+            return;
+        }
         if (!isOpen || data == null || data.length == 0) {
             return;
         }
@@ -305,7 +365,7 @@ public class ByteFileModel {
     }
 
     public boolean isModified() {
-        return modified;
+        return modified && !readOnly;
     }
 
     public File getCurrentFile() {

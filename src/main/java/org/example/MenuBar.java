@@ -14,6 +14,15 @@ public class MenuBar extends JMenuBar {
     private HexTable hexTable;
     private SearchDialog searchDialog;
 
+    private JMenuItem saveItem;
+    private JMenuItem deleteZeroItem;
+    private JMenuItem deleteShiftItem;
+    private JMenuItem pasteItem;
+    private JMenuItem pasteWithShiftItem;
+    private JMenuItem cutItem;
+    private JMenuItem cutShiftItem;
+    private JMenuItem enableEditItem;
+
     public MenuBar(MainWindow mainWindow, HexTable hexTable){
         this.mainWindow = mainWindow;
         this.hexTable = hexTable;
@@ -29,7 +38,7 @@ public class MenuBar extends JMenuBar {
             }
         });
 
-        JMenuItem saveItem = new JMenuItem("Сохранить");
+        saveItem = new JMenuItem("Сохранить");
         saveItem.addActionListener(e -> saveFile());
 
         JMenuItem saveAsItem = new JMenuItem("Сохранить как");
@@ -51,20 +60,22 @@ public class MenuBar extends JMenuBar {
 
         JMenu editMenu = new JMenu("Правка");
 
-        JMenuItem deleteZeroItem = new JMenuItem("Удалить");
+        deleteZeroItem = new JMenuItem("Удалить");
         deleteZeroItem.addActionListener(e -> deleteSelected());
         JMenuItem copyItem = new JMenuItem("Копировать");
         copyItem.addActionListener(e -> copySelected());
-        JMenuItem pasteItem = new JMenuItem("Вставить");
+        pasteItem = new JMenuItem("Вставить");
         pasteItem.addActionListener(e -> pasteSelected());
-        JMenuItem pasteWithShiftItem = new JMenuItem("Вставить со сдвигом");
+        pasteWithShiftItem = new JMenuItem("Вставить со сдвигом");
         pasteWithShiftItem.addActionListener(e -> pasteWithShiftSelected());
-        JMenuItem cutItem = new JMenuItem("Вырезать");
+        cutItem = new JMenuItem("Вырезать");
         cutItem.addActionListener(e -> cutSelected());
-        JMenuItem deleteShiftItem = new JMenuItem("Удалить со сдвигом");
+        deleteShiftItem = new JMenuItem("Удалить со сдвигом");
         deleteShiftItem.addActionListener(e -> deleteWithShiftSelected());
-        JMenuItem cutShiftItem = new JMenuItem("Вырезать со сдвигом");
+        cutShiftItem = new JMenuItem("Вырезать со сдвигом");
         cutShiftItem.addActionListener(e -> cutWithShiftSelected());
+        enableEditItem = new JMenuItem("Включить редактирование");
+        enableEditItem.addActionListener(e -> mainWindow.enableEditing());
 
         JMenu searchMenu = new JMenu("Поиск");
 
@@ -80,6 +91,8 @@ public class MenuBar extends JMenuBar {
         editMenu.add(pasteWithShiftItem);
         editMenu.add(cutItem);
         editMenu.add(cutShiftItem);
+        editMenu.addSeparator();
+        editMenu.add(enableEditItem);
         add(editMenu);
         add(viewMenu);
         add(searchMenu);
@@ -98,6 +111,18 @@ public class MenuBar extends JMenuBar {
         fileMenu.add(exitItem);
 
         add(fileMenu);
+        setEditingEnabled(false);
+    }
+
+    public void setEditingEnabled(boolean enabled) {
+        if (saveItem != null) saveItem.setEnabled(enabled);
+        if (deleteZeroItem != null) deleteZeroItem.setEnabled(enabled);
+        if (deleteShiftItem != null) deleteShiftItem.setEnabled(enabled);
+        if (pasteItem != null) pasteItem.setEnabled(enabled);
+        if (pasteWithShiftItem != null) pasteWithShiftItem.setEnabled(enabled);
+        if (cutItem != null) cutItem.setEnabled(enabled);
+        if (cutShiftItem != null) cutShiftItem.setEnabled(enabled);
+        if (enableEditItem != null) enableEditItem.setVisible(!enabled);
     }
 
     private void openFile() {

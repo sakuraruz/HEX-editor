@@ -147,12 +147,79 @@ public class MainWindow extends JFrame {
 
     public void openFile(String path) {
         try {
-            fileModel.openFile(path);
+            int result = JOptionPane.showConfirmDialog(this,
+                    "Открыть файл в режиме редактирования?\n" +
+                            "Если выберете 'Нет', файл откроется только для чтения.",
+                    "Режим открытия",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
+            boolean readOnly;
+            if (result == JOptionPane.YES_OPTION) {
+                readOnly = false;
+            } else if (result == JOptionPane.NO_OPTION) {
+                readOnly = true;
+            } else {
+                return;
+            }
+
+            fileModel.openFile(path, readOnly);
             tableModel.fireTableStructureChanged();
             ((DefaultTableModel) rowHeaderTable.getModel()).fireTableDataChanged();
-            setTitle("HEX-редактор - " + path);
+            hexTable.setModel(tableModel);
+
+            rowHeaderTable = createRowHeader();
+            String mode = readOnly ? " (только чтение)" : " (редактирование)";
+            setTitle("HEX-редактор - " + path + mode);
+
+            if (menuBar != null) {
+                menuBar.setEditingEnabled(!readOnly);
+            }
+
+            if (readOnly) {
+                hexTable.setDefaultEditor(Object.class, null);
+            } else {
+                hexTable.setDefaultEditor(Object.class, new HexCellEditor());
+            }
+
+            if (statusBar != null) {
+                statusBar.updateMode(readOnly);
+            }
+
+            tableModel.fireTableStructureChanged();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Ошибка: " + e.getMessage());
+        }
+    }
+
+    public void enableEditing() {
+        try {
+            fileModel.enableEditing();
+
+            if (menuBar != null) {
+                menuBar.setEditingEnabled(true);
+            }
+
+            hexTable.setDefaultEditor(Object.class, new HexCellEditor());
+
+            if (statusBar != null) {
+                statusBar.updateMode(false);
+            }
+
+            String title = "HEX-редактор - " + fileModel.getCurrentFile().getName() + " (редактирование)";
+            setTitle(title);
+
+            JOptionPane.showMessageDialog(this,
+                    "Режим редактирования активирован",
+                    "Информация",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (IOException e) {
+            log.error("Ошибка переключения в режим редактирования", e);
+            JOptionPane.showMessageDialog(this,
+                    "Ошибка переключения в режим редактирования: " + e.getMessage(),
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

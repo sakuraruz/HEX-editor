@@ -6,6 +6,7 @@ import javax.swing.BorderFactory;
 import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.awt.Color;
 
 public class StatusBar extends JPanel implements PropertyChangeListener {
 
@@ -14,6 +15,7 @@ public class StatusBar extends JPanel implements PropertyChangeListener {
     private JLabel unsignedLabel;
     private JLabel signedLabel;
     private HexTable hexTable;
+    private JLabel modeLabel;
 
     public StatusBar(HexTable hexTable) {
         this.hexTable = hexTable;
@@ -26,11 +28,13 @@ public class StatusBar extends JPanel implements PropertyChangeListener {
         hexLabel = new JLabel("HEX: --");
         unsignedLabel = new JLabel("Unsigned: --");
         signedLabel = new JLabel("Signed: --");
+        modeLabel = new JLabel("Режим: --");
 
         add(positionLabel);
         add(hexLabel);
         add(unsignedLabel);
         add(signedLabel);
+        add(modeLabel);
 
         updateLabels(null);
     }
@@ -57,5 +61,17 @@ public class StatusBar extends JPanel implements PropertyChangeListener {
             unsignedLabel.setText("Unsigned: " + value.getUnsigned());
             signedLabel.setText("Signed: " + value.getSigned());
         }
+    }
+
+    public void updateMode(boolean isReadOnly) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            if (isReadOnly) {
+                modeLabel.setText("Режим: ТОЛЬКО ЧТЕНИЕ");
+                modeLabel.setForeground(Color.RED);
+            } else {
+                modeLabel.setText("Режим: РЕДАКТИРОВАНИЕ");
+                modeLabel.setForeground(new Color(0, 150, 0)); // Темно-зеленый
+            }
+        });
     }
 }
