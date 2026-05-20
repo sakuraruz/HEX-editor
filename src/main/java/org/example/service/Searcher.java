@@ -1,4 +1,7 @@
-package org.example;
+package org.example.service;
+
+import org.example.model.ByteFileModel;
+import org.example.model.SearchPattern;
 
 import java.io.IOException;
 

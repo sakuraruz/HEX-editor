@@ -1,5 +1,7 @@
-package org.example;
+package org.example.view;
 
+
+import org.example.model.ByteInterpreter;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;

@@ -1,4 +1,9 @@
-package org.example;
+package org.example.view;
+
+import org.example.service.Searcher;
+import org.example.model.ByteFileModel;
+import org.example.model.HexTableModel;
+import org.example.model.SearchPattern;
 
 import javax.swing.JDialog;
 import javax.swing.JTextField;

@@ -1,13 +1,14 @@
-package org.example;
+package org.example.model;
 
 import javax.swing.table.AbstractTableModel;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+
+import org.example.service.BackgroundFileOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.swing.JFrame;
-import java.awt.Component;
 
 public class HexTableModel extends AbstractTableModel {
 
@@ -257,5 +258,9 @@ public class HexTableModel extends AbstractTableModel {
 
     public int getColumns() {
         return columns;
+    }
+
+    public static byte[] getClipboardBytes() {
+        return clipboard.bytes;
     }
 }

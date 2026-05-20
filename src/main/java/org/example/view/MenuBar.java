@@ -1,4 +1,9 @@
-package org.example;
+package org.example.view;
+
+import org.example.MainWindow;
+import org.example.SelectedBlockOperation;
+import org.example.model.ByteFileModel;
+import org.example.model.HexTableModel;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;

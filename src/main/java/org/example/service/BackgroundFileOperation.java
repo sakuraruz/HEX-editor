@@ -1,4 +1,4 @@
-package org.example;
+package org.example.service;
 
 import javax.swing.SwingUtilities;
 import javax.swing.ProgressMonitor;

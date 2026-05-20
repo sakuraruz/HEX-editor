@@ -1,5 +1,12 @@
 package org.example;
 
+import org.example.model.ByteFileModel;
+import org.example.model.HexTableModel;
+import org.example.view.MenuBar;
+import org.example.view.HexTable;
+import org.example.view.StatusBar;
+import org.example.view.BlockViewPanel;
+import org.example.view.HexCellEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

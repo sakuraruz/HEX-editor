@@ -1,4 +1,4 @@
-package org.example;
+package org.example.model;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -112,6 +112,10 @@ public class ByteFileModel {
         }
         log.error("Попытка чтения из неоткрытого файла");
         throw new IOException("Файл не открыт!");
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
     }
 
     public void close() throws IOException {

@@ -1,4 +1,6 @@
-package org.example;
+package org.example.view;
+
+import org.example.model.HexTableModel;
 
 import javax.swing.JPanel;
 import javax.swing.JLabel;

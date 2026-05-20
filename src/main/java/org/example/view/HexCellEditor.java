@@ -1,4 +1,7 @@
-package org.example;
+package org.example.view;
+
+import org.example.service.HexUtils;
+import org.example.model.HexTableModel;
 
 import javax.swing.table.TableCellEditor;
 import javax.swing.JTextField;
